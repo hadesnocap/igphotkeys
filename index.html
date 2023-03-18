@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>INI File Editor</title>
+    <style>
+        .styled-table {
+            border-collapse: collapse;
+            margin-top: 25px;
+            font-size: 0.9em;
+            font-family: sans-serif;
+            min-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+            margin-right: auto;
+            margin-left: auto;
+        }
+
+        .styled-table th,
+        .styled-table td {
+            padding: 12px 15px;
+        }
+
+        .styled-table tbody tr {
+            border-bottom: 1px solid #dddddd;
+        }
+
+        .styled-table tbody tr:hover {
+            background-color: #a050a0;
+        }
+        .styled-table tbody tr:nth-of-type(even):hover {
+            background-color: #a050a0;
+        }
+
+        .styled-table tbody tr:nth-of-type(even) {
+            background-color: #f3f3f3;
+        }
+
+        .styled-table tbody tr:last-of-type {
+            border-bottom: 2px solid #009879;
+        }
+
+        .styled-table tbody tr.active-row {
+            font-weight: bold;
+            color: #009879;
+        }
+
+        .styled-table thead tr {
+            background-color: #009879;
+            color: #ffffff;
+            text-align: left;
+            top:0; 
+            position:sticky;
+        }
+
+    .button-3 {
+    appearance: none;
+    background-color: #2ea44f;
+    border: 1px solid rgba(27, 31, 35, .15);
+    border-radius: 6px;
+    box-shadow: rgba(27, 31, 35, .1) 0 1px 0;
+    box-sizing: border-box;
+    color: #fff;
+    cursor: pointer;
+    display: inline-block;
+    font-family: -apple-system,system-ui,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 20px;
+    padding: 6px 16px;
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    vertical-align: middle;
+    white-space: nowrap;
+    }
+
+    .button-3:focus:not(:focus-visible):not(.focus-visible) {
+    box-shadow: none;
+    outline: none;
+    }
+
+    .button-3:hover {
+    background-color: #2c974b;
+    }
+
+    .button-3:focus {
+    box-shadow: rgba(46, 164, 79, .4) 0 0 0 3px;
+    outline: none;
+    }
+
+    .button-3:disabled {
+    background-color: #94d3a2;
+    border-color: rgba(27, 31, 35, .1);
+    color: rgba(255, 255, 255, .8);
+    cursor: default;
+    }
+
+    .button-3:active {
+    background-color: #298e46;
+    box-shadow: rgba(20, 70, 32, .2) 0 1px 0 inset;
+    }
+    .container {
+        margin: auto;
+  width: 50%;
+  border: 3px solid green;
+  padding: 10px;
+}
+    </style>
+    
+  </head>
+  <body>
+      
+    <h1>INI File Editor</h1>
+    <input type="file" id="file-input" />
+    <div class="container">
+    <button class="button-3" role="button" onclick="document.getElementById('file-input').click()">Open INI File</button><br>
+    <button class="button-3" role="button" onclick="PopulateDefault('TheCore_Left')">Display Full Default TheCore Left Configuration</button><br>
+    <button class="button-3" role="button" onclick="PopulateDefault('TheCore_Right')">Display Full Default TheCore Right Configuration</button><br>
+    <button class="button-3" role="button" onclick="PopulateDefault('Left_Handed')">Display Full Default Left Handed Configuration</button><br>
+    <button class="button-3" role="button" onclick="PopulateDefault('Right_Handed')">Display Full Default Right Handed Configuration</button><br>
+    <button class="button-3" role="button" onclick="ExportIniFile()">Export INI File</button>
+    </div>
+    <a id="download-link" download="edited.ini"></a>
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>Action Name</th>
+          <th>bShift</th>
+          <th>bCtrl</th>
+          <th>bAlt</th>
+          <th>bCmd</th>
+          <th>Key</th>
+        </tr>
+      </thead>
+      <tbody id="ini-table">
+      </tbody>
+    </table>
+  </body>
+  <script>
+      
+    const defaultTexts = {
+        "TheCore_Left":`
+[/Script/Engine.InputSettings]
+ActionMappings=(ActionName="Ability1",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=F)
+ActionMappings=(ActionName="Ability2",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=W)
+ActionMappings=(ActionName="Ability3",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Q)
+ActionMappings=(ActionName="Ability4",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=A)
+ActionMappings=(ActionName="Ability5",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Two)
+ActionMappings=(ActionName="Ability6",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Z)
+ActionMappings=(ActionName="Ability7",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=S)
+ActionMappings=(ActionName="Ability8",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=X)
+ActionMappings=(ActionName="AttackMove",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=S)
+ActionMappings=(ActionName="CancelOrders",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Seven)
+ActionMappings=(ActionName="CompleteAllTraining",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=I)
+ActionMappings=(ActionName="CompleteConstructions",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=K)
+ActionMappings=(ActionName="ConstructionTab",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=B)
+ActionMappings=(ActionName="ControlGroup1",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=G)
+ActionMappings=(ActionName="ControlGroup10",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=C)
+ActionMappings=(ActionName="ControlGroup2",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=D)
+ActionMappings=(ActionName="ControlGroup3",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=E)
+ActionMappings=(ActionName="ControlGroup4",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=R)
+ActionMappings=(ActionName="ControlGroup5",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=V)
+ActionMappings=(ActionName="ControlGroup6",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Six)
+ActionMappings=(ActionName="ControlGroup7",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Y)
+ActionMappings=(ActionName="ControlGroup8",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=J)
+ActionMappings=(ActionName="ControlGroup9",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=N)
+ActionMappings=(ActionName="ControlGroupAddStealKey",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=LeftControl)
+ActionMappings=(ActionName="Delete",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Delete)
+ActionMappings=(ActionName="DisableWeapons",bShift=True,bCtrl=False,bAlt=True,bCmd=False,Key=J)
+ActionMappings=(ActionName="DownArrow",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Down)
+ActionMappings=(ActionName="DragPan",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=MiddleMouseButton)
+ActionMappings=(ActionName="Enter Cinematic Camera",bShift=True,bCtrl=False,bAlt=True,bCmd=False,Key=L)
+ActionMappings=(ActionName="FullMana",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=J)
+ActionMappings=(ActionName="FullyDamageSelectedUnits",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=P)
+ActionMappings=(ActionName="GetAlloyEther",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=M)
+ActionMappings=(ActionName="GetPyre",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=L)
+ActionMappings=(ActionName="Hide HUD",bShift=True,bCtrl=False,bAlt=True,bCmd=False,Key=O)
+ActionMappings=(ActionName="InclusiveSelect/QueueCommand",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=LeftShift)
+ActionMappings=(ActionName="JumpToCameraLocation1",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Three)
+ActionMappings=(ActionName="JumpToCameraLocation2",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Four)
+ActionMappings=(ActionName="JumpToCameraLocation3",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Five)
+ActionMappings=(ActionName="JumpToCameraLocation4",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=T)
+ActionMappings=(ActionName="JumpToCameraLocation5",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=Three)
+ActionMappings=(ActionName="JumpToCameraLocation6",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=Four)
+ActionMappings=(ActionName="JumpToCameraLocation7",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=Five)
+ActionMappings=(ActionName="JumpToCameraLocation8",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=T)
+ActionMappings=(ActionName="LeftArrow",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Left)
+ActionMappings=(ActionName="LeftMouseClick",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=LeftMouseButton)
+ActionMappings=(ActionName="MarcoPolo",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Comma)
+ActionMappings=(ActionName="Menu",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Escape)
+ActionMappings=(ActionName="Menu",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=F10)
+ActionMappings=(ActionName="MinimapJumpTo",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=LeftMouseButton)
+ActionMappings=(ActionName="Move/ContextCommand",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=RightMouseButton)
+ActionMappings=(ActionName="PyreTab",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=One)
+ActionMappings=(ActionName="PyreTab",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=LeftCommand)
+ActionMappings=(ActionName="ResearchTab",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Tab)
+ActionMappings=(ActionName="RespawnNeutrals",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=N)
+ActionMappings=(ActionName="RightArrow",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Right)
+ActionMappings=(ActionName="RightMouseClick",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=RightMouseButton)
+ActionMappings=(ActionName="Select/ConfirmAbility",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=LeftMouseButton)
+ActionMappings=(ActionName="SelectUnitProductionBuildings",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=H)
+ActionMappings=(ActionName="SetCameraLocation1",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=Three)
+ActionMappings=(ActionName="SetCameraLocation2",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=Four)
+ActionMappings=(ActionName="SetCameraLocation3",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=Five)
+ActionMappings=(ActionName="SetCameraLocation4",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=T)
+ActionMappings=(ActionName="SetCameraLocation5",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=R)
+ActionMappings=(ActionName="SetCameraLocation6",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=E)
+ActionMappings=(ActionName="SetCameraLocation7",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=G)
+ActionMappings=(ActionName="SetCameraLocation8",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=B)
+ActionMappings=(ActionName="SpectatorDisplayUI",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=W)
+ActionMappings=(ActionName="SpectatorTeamOneVision",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=A)
+ActionMappings=(ActionName="SpectatorTeamTwoVision",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=S)
+ActionMappings=(ActionName="SpectatorAllTeamsVision",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=D)
+ActionMappings=(ActionName="StandGround",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=X)
+ActionMappings=(ActionName="SwitchAbilityCommandLayer",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=LeftControl)
+ActionMappings=(ActionName="TheCheatToRuleThemAll",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=None)
+ActionMappings=(ActionName="Toggle Gamepad",bShift=False,bCtrl=True,bAlt=True,bCmd=False,Key=None)
+ActionMappings=(ActionName="UpArrow",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Up)
+ActionMappings=(ActionName="UnitTypeSelectionModifier",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=LeftControl)
+ActionMappings=(ActionName="ZoomIn",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=MouseScrollUp)
+ActionMappings=(ActionName="ZoomOut",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=MouseScrollDown)
+        `,
+"TheCore_Right":`[/Script/Engine.InputSettings]
+ActionMappings=(ActionName="Ability1",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=K)
+ActionMappings=(ActionName="Ability2",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=P)
+ActionMappings=(ActionName="Ability3",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=LeftBracket)
+ActionMappings=(ActionName="Ability4",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Apostrophe)
+ActionMappings=(ActionName="Ability5",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Hyphen)
+ActionMappings=(ActionName="Ability6",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Slash)
+ActionMappings=(ActionName="Ability7",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=SemiColon)
+ActionMappings=(ActionName="Ability8",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Period)
+ActionMappings=(ActionName="AttackMove",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=SemiColon)
+ActionMappings=(ActionName="CancelOrders",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Six)
+ActionMappings=(ActionName="CompleteAllTraining",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=I)
+ActionMappings=(ActionName="CompleteConstructions",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=K)
+ActionMappings=(ActionName="ConstructionTab",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=N)
+ActionMappings=(ActionName="ControlGroup1",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=J)
+ActionMappings=(ActionName="ControlGroup10",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Comma)
+ActionMappings=(ActionName="ControlGroup2",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=L)
+ActionMappings=(ActionName="ControlGroup3",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=O)
+ActionMappings=(ActionName="ControlGroup4",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=I)
+ActionMappings=(ActionName="ControlGroup5",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=M)
+ActionMappings=(ActionName="ControlGroup6",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Seven)
+ActionMappings=(ActionName="ControlGroup7",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Y)
+ActionMappings=(ActionName="ControlGroup8",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=G)
+ActionMappings=(ActionName="ControlGroup9",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=B)
+ActionMappings=(ActionName="ControlGroupAddStealKey",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=RightControl)
+ActionMappings=(ActionName="Delete",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Delete)
+ActionMappings=(ActionName="DisableWeapons",bShift=True,bCtrl=False,bAlt=True,bCmd=False,Key=J)
+ActionMappings=(ActionName="DownArrow",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Down)
+ActionMappings=(ActionName="DragPan",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=MiddleMouseButton)
+ActionMappings=(ActionName="Enter Cinematic Camera",bShift=True,bCtrl=False,bAlt=True,bCmd=False,Key=L)
+ActionMappings=(ActionName="FullMana",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=J)
+ActionMappings=(ActionName="FullyDamageSelectedUnits",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=P)
+ActionMappings=(ActionName="GetAlloyEther",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=M)
+ActionMappings=(ActionName="GetPyre",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=L)
+ActionMappings=(ActionName="Hide HUD",bShift=True,bCtrl=False,bAlt=True,bCmd=False,Key=O)
+ActionMappings=(ActionName="InclusiveSelect/QueueCommand",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=RightShift)
+ActionMappings=(ActionName="JumpToCameraLocation1",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Zero)
+ActionMappings=(ActionName="JumpToCameraLocation2",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Nine)
+ActionMappings=(ActionName="JumpToCameraLocation3",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Eight)
+ActionMappings=(ActionName="JumpToCameraLocation4",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=U)
+ActionMappings=(ActionName="JumpToCameraLocation5",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=Zero)
+ActionMappings=(ActionName="JumpToCameraLocation6",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=Nine)
+ActionMappings=(ActionName="JumpToCameraLocation7",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=Eight)
+ActionMappings=(ActionName="JumpToCameraLocation8",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=U)
+ActionMappings=(ActionName="LeftArrow",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Left)
+ActionMappings=(ActionName="LeftMouseClick",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=LeftMouseButton)
+ActionMappings=(ActionName="MarcoPolo",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Comma)
+ActionMappings=(ActionName="Menu",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Escape)
+ActionMappings=(ActionName="Menu",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=F10)
+ActionMappings=(ActionName="MinimapJumpTo",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=LeftMouseButton)
+ActionMappings=(ActionName="Move/ContextCommand",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=RightMouseButton)
+ActionMappings=(ActionName="PyreTab",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Equals)
+ActionMappings=(ActionName="PyreTab",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=RightCommand)
+ActionMappings=(ActionName="ResearchTab",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=RightBracket)
+ActionMappings=(ActionName="RespawnNeutrals",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=N)
+ActionMappings=(ActionName="RightArrow",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Right)
+ActionMappings=(ActionName="RightMouseClick",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=RightMouseButton)
+ActionMappings=(ActionName="Select/ConfirmAbility",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=LeftMouseButton)
+ActionMappings=(ActionName="SelectUnitProductionBuildings",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=H)
+ActionMappings=(ActionName="SetCameraLocation1",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=Zero)
+ActionMappings=(ActionName="SetCameraLocation2",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=Nine)
+ActionMappings=(ActionName="SetCameraLocation3",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=Eight)
+ActionMappings=(ActionName="SetCameraLocation4",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=U)
+ActionMappings=(ActionName="SetCameraLocation5",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=I)
+ActionMappings=(ActionName="SetCameraLocation6",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=O)
+ActionMappings=(ActionName="SetCameraLocation7",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=J)
+ActionMappings=(ActionName="SetCameraLocation8",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=M)
+ActionMappings=(ActionName="SpectatorDisplayUI",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=W)
+ActionMappings=(ActionName="SpectatorTeamOneVision",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=A)
+ActionMappings=(ActionName="SpectatorTeamTwoVision",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=S)
+ActionMappings=(ActionName="SpectatorAllTeamsVision",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=D)
+ActionMappings=(ActionName="StandGround",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Period)
+ActionMappings=(ActionName="SwitchAbilityCommandLayer",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=RightControl)
+ActionMappings=(ActionName="TheCheatToRuleThemAll",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=None)
+ActionMappings=(ActionName="Toggle Gamepad",bShift=False,bCtrl=True,bAlt=True,bCmd=False,Key=None)
+ActionMappings=(ActionName="UpArrow",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Up)
+ActionMappings=(ActionName="UnitTypeSelectionModifier",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=RightControl)
+ActionMappings=(ActionName="ZoomIn",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=MouseScrollUp)
+ActionMappings=(ActionName="ZoomOut",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=MouseScrollDown)`,
+"Left_Handed":`[/Script/Engine.InputSettings]
+ActionMappings=(ActionName="Ability1",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=U)
+ActionMappings=(ActionName="Ability2",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=I)
+ActionMappings=(ActionName="Ability3",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=O)
+ActionMappings=(ActionName="Ability4",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=P)
+ActionMappings=(ActionName="Ability5",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Semicolon)
+ActionMappings=(ActionName="Ability6",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=H)
+ActionMappings=(ActionName="Ability7",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=J)
+ActionMappings=(ActionName="Ability8",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=K)
+ActionMappings=(ActionName="AttackMove",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=J)
+ActionMappings=(ActionName="CancelOrders",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=BackSpace)
+ActionMappings=(ActionName="CompleteAllTraining",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=E)
+ActionMappings=(ActionName="CompleteConstructions",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=D)
+ActionMappings=(ActionName="ConstructionTab",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Period)
+ActionMappings=(ActionName="ControlGroup1",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=L)
+ActionMappings=(ActionName="ControlGroup10",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Nine)
+ActionMappings=(ActionName="ControlGroup11",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Zero)
+ActionMappings=(ActionName="ControlGroup2",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Hyphen)
+ActionMappings=(ActionName="ControlGroup3",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Two)
+ActionMappings=(ActionName="ControlGroup4",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Three)
+ActionMappings=(ActionName="ControlGroup5",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Four)
+ActionMappings=(ActionName="ControlGroup6",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Five)
+ActionMappings=(ActionName="ControlGroup7",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Six)
+ActionMappings=(ActionName="ControlGroup8",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Seven)
+ActionMappings=(ActionName="ControlGroup9",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Eight)
+ActionMappings=(ActionName="ControlGroupAddStealKey",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=SpaceBar)
+ActionMappings=(ActionName="Delete",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Delete)
+ActionMappings=(ActionName="DisableWeapons",bShift=True,bCtrl=False,bAlt=True,bCmd=False,Key=F)
+ActionMappings=(ActionName="DownArrow",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Down)
+ActionMappings=(ActionName="DragPan",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=MiddleMouseButton)
+ActionMappings=(ActionName="Enter Cinematic Camera",bShift=True,bCtrl=False,bAlt=True,bCmd=False,Key=S)
+ActionMappings=(ActionName="FullMana",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=F)
+ActionMappings=(ActionName="FullyDamageSelectedUnits",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Q)
+ActionMappings=(ActionName="GetAlloyEther",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=V)
+ActionMappings=(ActionName="GetPyre",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=S)
+ActionMappings=(ActionName="Hide HUD",bShift=True,bCtrl=False,bAlt=True,bCmd=False,Key=W)
+ActionMappings=(ActionName="InclusiveSelect/QueueCommand",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=LeftShift)
+ActionMappings=(ActionName="JumpToCameraLocation1",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=Slash)
+ActionMappings=(ActionName="JumpToCameraLocation2",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=Period)
+ActionMappings=(ActionName="JumpToCameraLocation3",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=Comma)
+ActionMappings=(ActionName="JumpToCameraLocation4",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=M)
+ActionMappings=(ActionName="JumpToCameraLocation5",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=Zero)
+ActionMappings=(ActionName="JumpToCameraLocation6",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=Nine)
+ActionMappings=(ActionName="JumpToCameraLocation7",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=Eight)
+ActionMappings=(ActionName="JumpToCameraLocation8",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=Hyphen)
+ActionMappings=(ActionName="LeftArrow",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Left)
+ActionMappings=(ActionName="LeftMouseClick",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=LeftMouseButton)
+ActionMappings=(ActionName="MarcoPolo",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=C)
+ActionMappings=(ActionName="Menu",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Escape)
+ActionMappings=(ActionName="Menu",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=F10)
+ActionMappings=(ActionName="MinimapJumpTo",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=LeftMouseButton)
+ActionMappings=(ActionName="Move/ContextCommand",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=RightMouseButton)
+ActionMappings=(ActionName="PyreTab",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Slash)
+ActionMappings=(ActionName="ResearchTab",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Backslash)
+ActionMappings=(ActionName="ResearchTab",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=LeftBracket)
+ActionMappings=(ActionName="ResearchTab",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=RightBracket)
+ActionMappings=(ActionName="RespawnNeutrals",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=B)
+ActionMappings=(ActionName="RightArrow",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Right)
+ActionMappings=(ActionName="RightMouseClick",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=RightMouseButton)
+ActionMappings=(ActionName="Select/ConfirmAbility",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=LeftMouseButton)
+ActionMappings=(ActionName="SelectUnitProductionBuildings",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=M)
+ActionMappings=(ActionName="SetCameraLocation1",bShift=False,bCtrl=True,bAlt=False,bCmd=False,Key=Slash)
+ActionMappings=(ActionName="SetCameraLocation2",bShift=False,bCtrl=True,bAlt=False,bCmd=False,Key=Period)
+ActionMappings=(ActionName="SetCameraLocation3",bShift=False,bCtrl=True,bAlt=False,bCmd=False,Key=Comma)
+ActionMappings=(ActionName="SetCameraLocation4",bShift=False,bCtrl=True,bAlt=False,bCmd=False,Key=M)
+ActionMappings=(ActionName="SetCameraLocation5",bShift=False,bCtrl=True,bAlt=False,bCmd=False,Key=Zero)
+ActionMappings=(ActionName="SetCameraLocation6",bShift=False,bCtrl=True,bAlt=False,bCmd=False,Key=Nine)
+ActionMappings=(ActionName="SetCameraLocation7",bShift=False,bCtrl=True,bAlt=False,bCmd=False,Key=Eight)
+ActionMappings=(ActionName="SetCameraLocation8",bShift=False,bCtrl=True,bAlt=False,bCmd=False,Key=Hyphen)
+ActionMappings=(ActionName="SpectatorDisplayUI",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=W)
+ActionMappings=(ActionName="SpectatorTeamOneVision",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=A)
+ActionMappings=(ActionName="SpectatorTeamTwoVision",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=S)
+ActionMappings=(ActionName="SpectatorAllTeamsVision",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=D)
+ActionMappings=(ActionName="StandGround",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=K)
+ActionMappings=(ActionName="SwitchAbilityCommandLayer",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=SpaceBar)
+ActionMappings=(ActionName="TheCheatToRuleThemAll",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=None)
+ActionMappings=(ActionName="Toggle Gamepad",bShift=False,bCtrl=True,bAlt=True,bCmd=False,Key=Z)
+ActionMappings=(ActionName="UnitTypeSelectionModifier",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=RightControl)
+ActionMappings=(ActionName="UpArrow",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Up)
+ActionMappings=(ActionName="ZoomIn",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=MouseScrollUp)
+ActionMappings=(ActionName="ZoomOut",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=MouseScrollDown)
+`,
+"Right_Handed":`[/Script/Engine.InputSettings]
+ActionMappings=(ActionName="Ability1",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=U)
+ActionMappings=(ActionName="Ability2",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=I)
+ActionMappings=(ActionName="Ability3",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=O)
+ActionMappings=(ActionName="Ability4",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=P)
+ActionMappings=(ActionName="Ability5",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Semicolon)
+ActionMappings=(ActionName="Ability6",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Slash)
+ActionMappings=(ActionName="Ability7",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=J)
+ActionMappings=(ActionName="Ability8",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=K)
+ActionMappings=(ActionName="AttackMove",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=J)
+ActionMappings=(ActionName="CancelOrders",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=BackSpace)
+ActionMappings=(ActionName="CompleteAllTraining",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=E)
+ActionMappings=(ActionName="CompleteConstructions",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=D)
+ActionMappings=(ActionName="ConstructionTab",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Period)
+ActionMappings=(ActionName="ControlGroup1",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=L)
+ActionMappings=(ActionName="ControlGroup10",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=N)
+ActionMappings=(ActionName="ControlGroup2",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Equals)
+ActionMappings=(ActionName="ControlGroup3",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Hyphen)
+ActionMappings=(ActionName="ControlGroup4",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Zero)
+ActionMappings=(ActionName="ControlGroup5",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Nine)
+ActionMappings=(ActionName="ControlGroup6",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Eight)
+ActionMappings=(ActionName="ControlGroup7",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Seven)
+ActionMappings=(ActionName="ControlGroup8",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Y)
+ActionMappings=(ActionName="ControlGroup9",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=H)
+ActionMappings=(ActionName="ControlGroupAddStealKey",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=RightControl)
+ActionMappings=(ActionName="Delete",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Delete)
+ActionMappings=(ActionName="DisableWeapons",bShift=True,bCtrl=False,bAlt=True,bCmd=False,Key=S)
+ActionMappings=(ActionName="DownArrow",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Down)
+ActionMappings=(ActionName="DragPan",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=MiddleMouseButton)
+ActionMappings=(ActionName="Enter Cinematic Camera",bShift=True,bCtrl=False,bAlt=True,bCmd=False,Key=F)
+ActionMappings=(ActionName="FullMana",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=S)
+ActionMappings=(ActionName="FullyDamageSelectedUnits",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=T)
+ActionMappings=(ActionName="GetAlloyEther",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=X)
+ActionMappings=(ActionName="GetPyre",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=D)
+ActionMappings=(ActionName="Hide HUD",bShift=True,bCtrl=False,bAlt=True,bCmd=False,Key=R)
+ActionMappings=(ActionName="InclusiveSelect/QueueCommand",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=LeftShift)
+ActionMappings=(ActionName="JumpToCameraLocation1",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=Zero)
+ActionMappings=(ActionName="JumpToCameraLocation2",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=Nine)
+ActionMappings=(ActionName="JumpToCameraLocation3",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=Eight)
+ActionMappings=(ActionName="JumpToCameraLocation4",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=Seven)
+ActionMappings=(ActionName="JumpToCameraLocation5",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=M)
+ActionMappings=(ActionName="JumpToCameraLocation6",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=Comma)
+ActionMappings=(ActionName="JumpToCameraLocation7",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=Period)
+ActionMappings=(ActionName="JumpToCameraLocation8",bShift=True,bCtrl=False,bAlt=False,bCmd=False,Key=Slash)
+ActionMappings=(ActionName="LeftArrow",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Left)
+ActionMappings=(ActionName="LeftMouseClick",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=LeftMouseButton)
+ActionMappings=(ActionName="MarcoPolo",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=C)
+ActionMappings=(ActionName="Menu",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Escape)
+ActionMappings=(ActionName="Menu",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=F10)
+ActionMappings=(ActionName="MinimapJumpTo",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=LeftMouseButton)
+ActionMappings=(ActionName="Move/ContextCommand",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=RightMouseButton)
+ActionMappings=(ActionName="PyreTab",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Apostrophe)
+ActionMappings=(ActionName="PyreTab",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=RightCommand)
+ActionMappings=(ActionName="ResearchTab",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Backslash)
+ActionMappings=(ActionName="RespawnNeutrals",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Z)
+ActionMappings=(ActionName="RightArrow",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Right)
+ActionMappings=(ActionName="RightMouseClick",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=RightMouseButton)
+ActionMappings=(ActionName="Select/ConfirmAbility",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=LeftMouseButton)
+ActionMappings=(ActionName="SelectUnitProductionBuildings",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=M)
+ActionMappings=(ActionName="SetCameraLocation1",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=Zero)
+ActionMappings=(ActionName="SetCameraLocation2",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=Nine)
+ActionMappings=(ActionName="SetCameraLocation3",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=Eight)
+ActionMappings=(ActionName="SetCameraLocation4",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=Seven)
+ActionMappings=(ActionName="SetCameraLocation5",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=M)
+ActionMappings=(ActionName="SetCameraLocation6",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=Comma)
+ActionMappings=(ActionName="SetCameraLocation7",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=Period)
+ActionMappings=(ActionName="SetCameraLocation8",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=Slash)
+ActionMappings=(ActionName="SpectatorDisplayUI",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=W)
+ActionMappings=(ActionName="SpectatorTeamOneVision",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=A)
+ActionMappings=(ActionName="SpectatorTeamTwoVision",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=S)
+ActionMappings=(ActionName="SpectatorAllTeamsVision",bShift=False,bCtrl=False,bAlt=True,bCmd=False,Key=D)
+ActionMappings=(ActionName="StandGround",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=K)
+ActionMappings=(ActionName="SwitchAbilityCommandLayer",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=RightControl)
+ActionMappings=(ActionName="TheCheatToRuleThemAll",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=None)
+ActionMappings=(ActionName="Toggle Gamepad",bShift=False,bCtrl=True,bAlt=True,bCmd=False,Key=F9)
+ActionMappings=(ActionName="UnitTypeSelectionModifier",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=RightControl)
+ActionMappings=(ActionName="UpArrow",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=Up)
+ActionMappings=(ActionName="ZoomIn",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=MouseScrollUp)
+ActionMappings=(ActionName="ZoomOut",bShift=False,bCtrl=False,bAlt=False,bCmd=False,Key=MouseScrollDown)
+
+`
+    }
+    let iniData = { ActionMappings: [] };
+
+    function PopulateDefault(name){
+        iniData.ActionMappings = []
+        ClearTable()
+        console.log(name)
+        PopulateActionMappings(defaultTexts[name])
+        UpdateIniTable()
+    }
+
+    function PopulateActionMappings(text){
+        const lines = text.split(/\r?\n/)
+        lines.forEach(line => {
+            if(line.startsWith("ActionMappings")){
+                let regexValueFromParan = /\(([^)]+)\)/
+                let content = regexValueFromParan.exec(line)[1].trim()
+                let components = content.split(",")
+                let actionMapping = {}
+                components.forEach(component => {
+                    let elements = component.split("=")
+                    let l = elements[0]
+                    let r = elements[1]
+                    let booleanMap = {
+                        True: true,
+                        False: false
+                    }
+                    if(r === "True" || r === "False"){
+                        actionMapping[l] = booleanMap[r]
+                    } else {
+                        actionMapping[l] = r
+                    }
+                })
+                iniData.ActionMappings.push(actionMapping)
+            }
+        });
+        console.log(iniData.ActionMappings)
+    }
+
+    const fileInput = document.getElementById("file-input");
+    fileInput.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        var reader = new FileReader();
+        reader.readAsText(file, "UTF-8");
+        reader.onload = function (event) {
+            let text = event.target.result
+            iniData.ActionMappings = []
+            ClearTable()
+            PopulateActionMappings(text);
+            UpdateIniTable()
+        }
+
+        reader.onerror = function (evt) {
+            alert("shit")
+        }
+    });
+
+    function ClearTable(){
+        const tableBody = document.getElementById("ini-table")
+        tableBody.innerHTML = ""
+    }
+
+    function UpdateIniTable() {
+        const tableBody = document.getElementById("ini-table")
+
+        const actionMappings = iniData.ActionMappings || []
+
+        actionMappings.forEach((actionMapping, index) => {
+            const { ActionName, bShift, bCtrl, bAlt, bCmd, Key } = actionMapping
+            const row = document.createElement("tr")
+            const actionNameCell = CreateTableCell(ActionName)
+            const shiftCell = CreateCheckboxCell(ActionName, "bShift", bShift)
+            const ctrlCell = CreateCheckboxCell(ActionName, "bCtrl", bCtrl)
+            const altCell = CreateCheckboxCell(ActionName, "bAlt", bAlt)
+            const cmdCell = CreateCheckboxCell(ActionName, "bCmd", bCmd)
+            const keyCell = CreateInputCell(ActionName, "Key", Key)
+
+            row.appendChild(actionNameCell)
+            row.appendChild(shiftCell)
+            row.appendChild(ctrlCell)
+            row.appendChild(altCell)
+            row.appendChild(cmdCell)
+            row.appendChild(keyCell)
+
+            tableBody.appendChild(row)
+        });
+    }
+
+    function CreateTableCell(text) {
+        const cell = document.createElement("td");
+        cell.textContent = text;
+        return cell;
+    }
+
+    function CreateCheckboxCell(actionName, propName, propValue) {
+        const cell = document.createElement("td")
+        const checkbox = document.createElement('input')
+        checkbox.type = 'checkbox'
+        checkbox.checked = propValue
+        checkbox.addEventListener('change', function () {
+            iniData.ActionMappings.forEach(function (mapping) {
+                if (mapping.ActionName === actionName) {
+                    mapping[propName] = checkbox.checked
+                }
+            });
+        });
+        cell.appendChild(checkbox)
+        return cell
+    }
+
+    function CreateInputCell(actionName, propName, propValue) {
+        const cell = document.createElement("td")
+        const text = document.createElement('input')
+        text.type = 'text'
+        text.value = propValue
+        text.addEventListener('change', function () {
+            iniData.ActionMappings.forEach(function (mapping) {
+                if (mapping.ActionName === actionName) {
+                    mapping[propName] = text.value
+                }
+            });
+        });
+        cell.appendChild(text)
+        return cell
+    }
+
+    function ExportIniFile(){
+        let output = ""
+        output += "[/Script/Engine.InputSettings]\r\n"
+
+        iniData.ActionMappings.forEach((actionMapping) => {
+            let bm = {
+                true: "True",
+                false: "False"
+            }
+            output += `ActionMappings=(ActionName=${actionMapping.ActionName},bShift=${bm[actionMapping.bShift]},bCtrl=${bm[actionMapping.bCtrl]},bAlt=${bm[actionMapping.bAlt]},bCmd=${bm[actionMapping.bCmd]},Key=${actionMapping.Key})\r\n`
+        })
+
+        const blob = new Blob([output], {type: 'text/plain'})
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'config.ini'
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+    }
+
+
+    </script>
+</html>
